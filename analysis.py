@@ -9,6 +9,7 @@ End-to-end sales dashboard visualization for business insights.
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import os
 
 # ========================
 # STYLE
@@ -20,15 +21,22 @@ plt.rcParams['axes.spines.top'] = False
 plt.rcParams['axes.spines.right'] = False
 
 # ========================
+# PATH SETUP (BIAR PROFESIONAL 🔥)
+# ========================
+BASE_DIR = os.path.dirname(__file__)
+DATA_PATH = os.path.join(BASE_DIR, "data", "superstore.csv")
+OUTPUT_PATH = os.path.join(BASE_DIR, "output", "dashboard.png")
+
+# ========================
 # LOAD & CLEAN
 # ========================
-df = pd.read_csv("superstore.csv", encoding='latin1')
+df = pd.read_csv(DATA_PATH, encoding='latin1')
 
 df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
 
 df['order_date'] = pd.to_datetime(df['order_date'])
 
-# ✅ FIX PENTING (JANGAN STRING)
+# ✅ FIX: gunakan period (bukan string)
 df['month'] = df['order_date'].dt.to_period('M')
 
 # ========================
@@ -43,8 +51,6 @@ avg_profit = df['profit'].mean()
 # AGGREGATION
 # ========================
 trend = df.groupby("month")["sales"].sum().sort_index()
-
-# ✅ ubah ke datetime untuk plotting
 trend.index = trend.index.to_timestamp()
 
 kota = df.groupby("city")["sales"].sum().sort_values(ascending=False).head(5)
@@ -71,7 +77,6 @@ axes[0,0].xaxis.set_major_locator(mdates.MonthLocator(interval=3))
 axes[0,0].xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
 
 plt.setp(axes[0,0].get_xticklabels(), rotation=30, ha='right')
-
 axes[0,0].grid(True, linestyle='--', alpha=0.4)
 
 # ===== TOP CITY =====
@@ -106,7 +111,7 @@ axes[1,1].grid(True, linestyle='--', alpha=0.4)
 # FINAL TOUCH
 # ========================
 plt.tight_layout(rect=[0, 0, 1, 0.92])
-plt.savefig("dashboard.png")
+plt.savefig(OUTPUT_PATH)
 plt.close()
 
 print("=== DASHBOARD CREATED SUCCESSFULLY ===")
